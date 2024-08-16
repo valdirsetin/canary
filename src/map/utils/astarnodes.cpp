@@ -14,7 +14,7 @@
 #include "creatures/combat/combat.hpp"
 
 AStarNodes::AStarNodes(uint32_t x, uint32_t y, int_fast32_t extraCost) :
-	openNodes(), nodes() {
+	nodes(), openNodes() {
 #if defined(__AVX2__)
 	__m256i defaultCost = _mm256_set1_epi32(std::numeric_limits<int32_t>::max());
 	for (int32_t i = 0; i < MAX_NODES; i += 32) {
@@ -100,7 +100,7 @@ AStarNode* AStarNodes::getBestNode() {
 		best_node = (total_cost < best_node_f ? indices_array[i] : best_node);
 		best_node_f = (total_cost < best_node_f ? total_cost : best_node_f);
 	}
-	return (openNodes[best_node] ? &nodes[best_node] : NULL);
+	return (openNodes[best_node] ? &nodes[best_node] : nullptr);
 #elif defined(__AVX2__)
 	const __m256i increment = _mm256_set1_epi32(8);
 	__m256i indices = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
@@ -171,7 +171,7 @@ AStarNode* AStarNodes::getBestNode() {
 	_mm_store_si128(reinterpret_cast<__m128i*>(indices_array), minindices);
 
 	int32_t best_node = indices_array[(_mm_ctz(_mm_movemask_epi8(_mm_cmpeq_epi32(minvalues, res))) >> 2)];
-	return (openNodes[best_node] ? &nodes[best_node] : NULL);
+	return (openNodes[best_node] ? &nodes[best_node] : nullptr);
 #else
 	int32_t best_node_f = std::numeric_limits<int32_t>::max();
 	int32_t best_node = -1;
@@ -257,7 +257,7 @@ AStarNode* AStarNodes::getNodeByPosition(uint32_t x, uint32_t y) {
 #endif
 }
 
-int_fast32_t AStarNodes::getMapWalkCost(AStarNode* node, const Position &neighborPos) {
+int_fast32_t AStarNodes::getMapWalkCost(const AStarNode* node, const Position &neighborPos) {
 	// diagonal movement extra cost
 	return (((std::abs(node->x - neighborPos.x) + std::abs(node->y - neighborPos.y)) - 1) * MAP_DIAGONALWALKCOST) + MAP_NORMALWALKCOST;
 }
