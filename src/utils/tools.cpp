@@ -1607,10 +1607,12 @@ NameEval_t validateName(const std::string &name) {
 		return INVALID_CHARACTER;
 	}
 
-	for (std::string str : toks) {
+	for (const std::string &str : toks) {
 		if (str.length() < 2) {
 			return INVALID_TOKEN_LENGTH;
-		} else if (std::find(prohibitedWords.begin(), prohibitedWords.end(), str) != prohibitedWords.end()) { // searching for prohibited words
+		}
+
+		if (std::find(prohibitedWords.begin(), prohibitedWords.end(), str) != prohibitedWords.end()) { // searching for prohibited words
 			return INVALID_FORBIDDEN;
 		}
 	}
