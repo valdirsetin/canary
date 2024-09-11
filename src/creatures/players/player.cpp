@@ -3467,10 +3467,10 @@ std::shared_ptr<Cylinder> Player::queryDestination(int32_t &index, const std::sh
 					}
 
 					if (const auto &subContainer = inventoryItem->getContainer()) {
-						containers.emplace_back(subContainer);
+						containers.push_back(subContainer);
 					}
 				} else if (const auto &subContainer = inventoryItem->getContainer()) {
-					containers.emplace_back(subContainer);
+					containers.push_back(subContainer);
 				}
 			} else if (queryAdd(slotIndex, item, item->getItemCount(), flags) == RETURNVALUE_NOERROR) { // empty slot
 				index = slotIndex;
@@ -3497,7 +3497,7 @@ std::shared_ptr<Cylinder> Player::queryDestination(int32_t &index, const std::sh
 
 				for (const auto &tmpContainerItem : tmpContainer->getItemList()) {
 					if (const auto &subContainer = tmpContainerItem->getContainer()) {
-						containers.emplace_back(subContainer);
+						containers.push_back(subContainer);
 					}
 				}
 
@@ -3523,7 +3523,7 @@ std::shared_ptr<Cylinder> Player::queryDestination(int32_t &index, const std::sh
 				}
 
 				if (const auto &subContainer = tmpItem->getContainer()) {
-					containers.emplace_back(subContainer);
+					containers.push_back(subContainer);
 				}
 
 				n++;
