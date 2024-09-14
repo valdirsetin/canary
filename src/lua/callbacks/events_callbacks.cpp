@@ -29,7 +29,7 @@ EventsCallbacks &EventsCallbacks::getInstance() {
 }
 
 void EventsCallbacks::addCallback(const std::shared_ptr<EventCallback> &callback) {
-	m_callbacks.emplace_back(callback);
+	m_callbacks.push_back(callback);
 }
 
 std::vector<std::shared_ptr<EventCallback>> EventsCallbacks::getCallbacks() const {
@@ -43,7 +43,7 @@ std::vector<std::shared_ptr<EventCallback>> EventsCallbacks::getCallbacksByType(
 			continue;
 		}
 
-		eventCallbacks.emplace_back(callback);
+		eventCallbacks.push_back(callback);
 	}
 
 	return eventCallbacks;
