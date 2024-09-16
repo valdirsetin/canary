@@ -98,11 +98,11 @@ public:
 	 */
 	template <typename CallbackFunc, typename... Args>
 	ReturnValue checkCallbackWithReturnValue(EventCallback_t eventType, CallbackFunc callbackFunc, Args &&... args) {
-		ReturnValue res = RETURNVALUE_NOERROR;
+		const ReturnValue res = RETURNVALUE_NOERROR;
 		for (const auto &callback : getCallbacksByType(eventType)) {
 			auto argsCopy = std::make_tuple(args...);
 			if (callback && callback->isLoadedCallback()) {
-				ReturnValue callbackResult = std::apply(
+				const ReturnValue callbackResult = std::apply(
 					[&callback, &callbackFunc](auto &&... args) {
 						return ((*callback).*callbackFunc)(std::forward<decltype(args)>(args)...);
 					},
@@ -130,7 +130,7 @@ public:
 		for (const auto &callback : getCallbacksByType(eventType)) {
 			auto argsCopy = std::make_tuple(args...);
 			if (callback && callback->isLoadedCallback()) {
-				bool callbackResult = std::apply(
+				const bool callbackResult = std::apply(
 					[&callback, &callbackFunc](auto &&... args) {
 						return ((*callback).*callbackFunc)(std::forward<decltype(args)>(args)...);
 					},
