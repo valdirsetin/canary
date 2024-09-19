@@ -36,3 +36,35 @@ end
 testLog:separator(" ")
 testLog:groupType("god")
 testLog:register()
+
+local containerTalkAction = TalkAction("!testcontainer")
+
+function containerTalkAction.onSay(player, words, param)
+	local container = player:getSlotItem(CONST_SLOT_BACKPACK)
+	if not container then
+		player:sendCancelMessage("Your backpack does not contain a valid container.")
+		logger.error("[!container] - Player: {} has a backpack without a valid container.", player:getName())
+		return true
+	end
+
+	local items = container:getItems(true)
+	local totalItems = 0
+	for i, item in pairs(items) do
+		if item then
+			local itemName = item:getName()
+
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Found item: " .. itemName)
+			item:remove()
+		end
+		-- Increment the item counter
+		totalItems = totalItems + 1
+	end
+
+	logger.error("[!container] - Player: {} executed the '!container' command. Total items found: {}.", player:getName(), totalItems)
+
+	return true
+end
+
+containerTalkAction:separator(" ")
+containerTalkAction:groupType("god")
+containerTalkAction:register()
