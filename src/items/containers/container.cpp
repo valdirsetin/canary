@@ -924,7 +924,7 @@ uint16_t Container::getFreeSlots() {
 }
 
 ContainerIterator Container::iterator() {
-	return ContainerIterator(getContainer());
+	return { getContainer() };
 }
 
 void Container::removeItem(std::shared_ptr<Thing> thing, bool sendUpdateToClient /* = false*/) {
@@ -967,11 +967,11 @@ uint32_t Container::getOwnerId() const {
  * ContainerIterator
  * @brief Iterator for iterating over the items in a container
  */
-ContainerIterator::ContainerIterator(std::shared_ptr<Container> container, size_t maxDepth) :
+ContainerIterator::ContainerIterator(const std::shared_ptr<Container> &container, size_t maxDepth) :
 	maxTraversalDepth(maxDepth) {
 	if (container) {
-		states.emplace(container, 0, 1);
-		visitedContainers.insert(container);
+		(void)states.emplace(container, 0, 1);
+		(void)visitedContainers.insert(container);
 	}
 }
 
@@ -1006,8 +1006,8 @@ void ContainerIterator::advance() {
 			if (newDepth <= maxTraversalDepth) {
 				// Check if we have already visited this container to avoid cycles
 				if (visitedContainers.find(subContainer) == visitedContainers.end()) {
-					states.emplace(subContainer, 0, newDepth);
-					visitedContainers.insert(subContainer);
+					(void)states.emplace(subContainer, 0, newDepth);
+					(void)visitedContainers.insert(subContainer);
 				} else {
 					// Cycle detection
 					g_logger().error("[{}] Cycle detected in container: {}", __FUNCTION__, subContainer->getName());

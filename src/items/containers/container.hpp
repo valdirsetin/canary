@@ -21,7 +21,7 @@ class Reward;
 
 class ContainerIterator {
 public:
-	ContainerIterator(std::shared_ptr<Container> container, size_t maxDepth = 1000);
+	ContainerIterator(const std::shared_ptr<Container> &container, size_t maxDepth = 1000);
 	bool hasNext() const;
 
 	void advance();
