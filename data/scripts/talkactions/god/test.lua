@@ -37,6 +37,13 @@ testLog:separator(" ")
 testLog:groupType("god")
 testLog:register()
 
+-- @module ContainerTalkAction
+-- @function Handles the "!testcontainer" TalkAction command for testing the ContainerIterator functionality.
+--
+-- This module defines a TalkAction that allows players to inspect their backpack containers.
+-- It can optionally remove items from the container based on the provided parameter.
+-- The command logs the total number of items and subcontainers found in the backpack.
+-- This is primarily used to verify the correctness of changes made to the ContainerIterator.
 local containerTalkAction = TalkAction("!testcontainer")
 
 function containerTalkAction.onSay(player, words, param)
@@ -47,21 +54,27 @@ function containerTalkAction.onSay(player, words, param)
 		return true
 	end
 
+	local shouldRemove = (param and param:lower() == "remove") and true or false
 	local items = container:getItems(true)
 	local totalItems = 0
+	local totalSubContainers = 0
 	for i, item in pairs(items) do
-		if item then
-			local itemName = item:getName()
-
-			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Found item: " .. itemName)
+		if shouldRemove and item then
 			item:remove()
 		end
-		-- Increment the item counter
-		totalItems = totalItems + 1
+
+		if item:getContainer() then
+			totalSubContainers = totalSubContainers + 1
+		else
+			totalItems = totalItems + 1
+		end
 	end
 
-	logger.error("[!container] - Player: {} executed the '!container' command. Total items found: {}.", player:getName(), totalItems)
+	local actionMessage = shouldRemove and "removed" or "have"
+	local playerMessage = actionMessage .. totalItems .. " items and " .. totalSubContainers .. " subcontainers from your backpack."
 
+	logger.info("[!testcontainer] - Player: {}, {} items from backpack: {}, subcontainers count: {}", player:getName(), actionMessage, totalItems, totalSubContainers)
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, playerMessage)
 	return true
 end
 
