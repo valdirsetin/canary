@@ -70,11 +70,12 @@ function containerTalkAction.onSay(player, words, param)
 		end
 	end
 
-	local actionMessage = shouldRemove and "removed" or "have"
+	local actionMessage = shouldRemove and "removed " or "have "
 	local playerMessage = actionMessage .. totalItems .. " items and " .. totalSubContainers .. " subcontainers from your backpack."
+	local finalMessage = string.format("[!testcontainer] - Player: %s, %s items from backpack: %d, subcontainers count: %d", player:getName(), actionMessage, totalItems, totalSubContainers)
 
-	logger.info("[!testcontainer] - Player: {}, {} items from backpack: {}, subcontainers count: {}", player:getName(), actionMessage, totalItems, totalSubContainers)
-	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, playerMessage)
+	logger.info(finalMessage)
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You " .. playerMessage)
 	return true
 end
 
