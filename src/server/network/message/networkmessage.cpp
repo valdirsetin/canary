@@ -18,20 +18,22 @@ int32_t NetworkMessage::decodeHeader() {
 	return info.length;
 }
 
-std::string NetworkMessage::getString(uint16_t stringLen /* = 0*/) {
+std::string NetworkMessage::getString(uint16_t stringLen /* = 0*/, const std::source_location &location) {
 	if (stringLen == 0) {
 		stringLen = get<uint16_t>();
 	}
 
 	if (!canRead(stringLen)) {
-		g_logger().error("[{}] not enough data to read string of length: {}", __METHOD_NAME__, stringLen);
+		g_logger().error("[{}] not enough data to read string of length: {}. Called from {}:{} in {}", __METHOD_NAME__, stringLen, location.line(), location.column(), location.function_name());
 		return {};
 	}
 
 	if (stringLen > NETWORKMESSAGE_MAXSIZE) {
-		g_logger().error("[{}] exceded NetworkMessage max size: {}, actually size: {}", __METHOD_NAME__, NETWORKMESSAGE_MAXSIZE, stringLen);
+		g_logger().error("[{}] exceded NetworkMessage max size: {}, actually size: {}.  Called from '{}:{}' in '{}'", __METHOD_NAME__, NETWORKMESSAGE_MAXSIZE, stringLen, location.line(), location.column(), location.function_name());
 		return {};
 	}
+
+	g_logger().debug("[{}] called from '{}:{}' in '{}'", __METHOD_NAME__, location.line(), location.column(), location.function_name());
 
 	// Copy the string from the buffer
 	std::string result(buffer.begin() + info.position, buffer.begin() + info.position + stringLen);
@@ -47,23 +49,44 @@ Position NetworkMessage::getPosition() {
 	return pos;
 }
 
-void NetworkMessage::addString(const std::string &value, const std::string &function /* = ""*/) {
+void NetworkMessage::addString(const std::string &value, const std::source_location &location /*= std::source_location::current()*/, const std::string &function /* = ""*/) {
 	size_t stringLen = value.length();
-	if (value.empty() && !function.empty()) {
-		g_logger().debug("[NetworkMessage::addString] - Value string is empty, function '{}'", function);
+	if (value.empty()) {
+		if (!function.empty()) {
+			g_logger().debug("[{}] attempted to add an empty string. Called from '{}'", __METHOD_NAME__, function);
+		} else {
+			g_logger().debug("[{}] attempted to add an empty string. Called from '{}:{}' in '{}'", __METHOD_NAME__, location.line(), location.column(), location.function_name());
+		}
+		return;
 	}
 	if (!canAdd(stringLen + 2)) {
-		g_logger().error("[NetworkMessage::addString] - NetworkMessage size is wrong: {}, function '{}'", stringLen, function);
+		if (!function.empty()) {
+			g_logger().error("[{}] NetworkMessage size is wrong: {}. Called from '{}'", __METHOD_NAME__, stringLen, function);
+		} else {
+			g_logger().error("[{}] NetworkMessage size is wrong: {}. Called from '{}:{}' in '{}'", __METHOD_NAME__, stringLen, location.line(), location.column(), location.function_name());
+		}
 		return;
 	}
 	if (stringLen > NETWORKMESSAGE_MAXSIZE) {
-		g_logger().error("[NetworkMessage::addString] - Exceded NetworkMessage max size: {}, actually size: {}, function '{}'", NETWORKMESSAGE_MAXSIZE, stringLen, function);
+		if (!function.empty()) {
+			g_logger().error("[{}] exceeded NetworkMessage max size: {}, actual size: {}. Called from '{}'", __METHOD_NAME__, NETWORKMESSAGE_MAXSIZE, stringLen, function);
+		} else {
+			g_logger().error("[{}] exceeded NetworkMessage max size: {}, actual size: {}. Called from '{}:{}' in '{}'", __METHOD_NAME__, NETWORKMESSAGE_MAXSIZE, stringLen, location.line(), location.column(), location.function_name());
+		}
 		return;
+	}
+
+	if (!function.empty()) {
+		g_logger().debug("[{}] called from '{}'", __METHOD_NAME__, function);
+	} else {
+		g_logger().debug("[{}] called from '{}:{}' in '{}'", __METHOD_NAME__, location.line(), location.column(), location.function_name());
 	}
 
 	uint16_t len = static_cast<uint16_t>(stringLen);
 	add<uint16_t>(len);
-	memcpy(buffer.data() + info.position, value.c_str(), stringLen);
+
+	// Using std::copy to copy the string into the buffer
+	std::copy(value.begin(), value.end(), buffer.begin() + info.position);
 	info.position += stringLen;
 	info.length += stringLen;
 }
