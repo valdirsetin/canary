@@ -24,18 +24,19 @@ std::string NetworkMessage::getString(uint16_t stringLen /* = 0*/) {
 	}
 
 	if (!canRead(stringLen)) {
-		g_logger().error("Not enough data to read string of length: {}", stringLen);
+		g_logger().error("[{}] not enough data to read string of length: {}", __METHOD_NAME__, stringLen);
 		return {};
 	}
 
 	if (stringLen > NETWORKMESSAGE_MAXSIZE) {
-		g_logger().error("[NetworkMessage::addString] - Exceded NetworkMessage max size: {}, actually size: {}", NETWORKMESSAGE_MAXSIZE, stringLen);
+		g_logger().error("[{}] exceded NetworkMessage max size: {}, actually size: {}", __METHOD_NAME__, NETWORKMESSAGE_MAXSIZE, stringLen);
 		return {};
 	}
 
-	const char* v = reinterpret_cast<const char*>(buffer.data() + info.position);
+	// Copy the string from the buffer
+	std::string result(buffer.begin() + info.position, buffer.begin() + info.position + stringLen);
 	info.position += stringLen;
-	return std::string(v, stringLen);
+	return result;
 }
 
 Position NetworkMessage::getPosition() {

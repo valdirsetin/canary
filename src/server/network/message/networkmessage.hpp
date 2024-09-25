@@ -27,7 +27,8 @@ public:
 	// 2 bytes for encrypted message size
 	static constexpr MsgSize_t INITIAL_BUFFER_POSITION = 8;
 
-	NetworkMessage() : buffer(NETWORKMESSAGE_MAXSIZE, 0) {}
+	NetworkMessage() :
+		buffer(NETWORKMESSAGE_MAXSIZE, 0) { }
 
 	void reset() {
 		info = {};
