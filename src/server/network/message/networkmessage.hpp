@@ -72,24 +72,25 @@ public:
 	}
 
 	// simply write functions for outgoing message
-	void addByte(uint8_t value) {
-		if (!canAdd(1)) {
-			g_logger().error("Cannot add byte, buffer overflow");
-			return;
-		}
-
-		buffer[info.position++] = value;
-		info.length++;
-	}
+	void addByte(uint8_t value, std::source_location location = std::source_location::current());
 
 	template <typename T>
-	void add(T value) {
+	void add(T value, std::source_location location = std::source_location::current()) {
 		if (!canAdd(sizeof(T))) {
 			g_logger().error("Cannot add value of size {}, buffer overflow", sizeof(T));
 			return;
 		}
 
-		memcpy(buffer.data() + info.position, &value, sizeof(T));
+		g_logger().trace("[{}] called line '{}:{}' in '{}'", __FUNCTION__, location.line(), location.column(), location.function_name());
+
+		// Ensure that T is trivially copyable
+		static_assert(std::is_trivially_copyable_v<T>, "Type T must be trivially copyable");
+		// Convert the value to an array of unsigned char using std::bit_cast
+		auto byteArray = std::bit_cast<std::array<unsigned char, sizeof(T)>>(value);
+		// Create a span from the byte array
+		std::span<const unsigned char> byteSpan(byteArray);
+		// Copy the bytes into the buffer
+		std::ranges::copy(byteSpan.begin(), byteSpan.end(), buffer.begin() + info.position);
 		info.position += sizeof(T);
 		info.length += sizeof(T);
 	}
