@@ -40,8 +40,8 @@ public:
 	SpawnMonster(SpawnMonster &&rhs) noexcept :
 		spawnedMonsterMap(std::move(rhs.spawnedMonsterMap)),
 		spawnMonsterMap(std::move(rhs.spawnMonsterMap)),
-		centerPos(rhs.centerPos), 
-		radius(rhs.radius), 
+		centerPos(rhs.centerPos),
+		radius(rhs.radius),
 		interval(rhs.interval),
 		checkSpawnMonsterEvent(rhs.checkSpawnMonsterEvent) { }
 
