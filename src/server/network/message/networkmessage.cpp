@@ -109,7 +109,7 @@ void NetworkMessage::addByte(uint8_t value, std::source_location location /*= st
 	try {
 		buffer.at(info.position++) = value;
 		info.length++;
-	} catch (const std::out_of_range& e) {
+	} catch (const std::out_of_range &e) {
 		g_logger().error("[{}] buffer access out of range: {}. Called line '{}:{}' in '{}'", __FUNCTION__, e.what(), location.line(), location.column(), location.function_name());
 	}
 }
