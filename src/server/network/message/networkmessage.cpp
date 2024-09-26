@@ -57,8 +57,9 @@ void NetworkMessage::addString(const std::string &value, const std::source_locat
 		} else {
 			g_logger().debug("[{}] attempted to add an empty string. Called line '{}:{}' in '{}'", __METHOD_NAME__, location.line(), location.column(), location.function_name());
 		}
-		uint16_t len = 0;
-		add<uint16_t>(len);
+
+		// Add a 0 length string, the std::array will be filled with 0s
+		add<uint16_t>(uint16_t());
 		return;
 	}
 	if (!canAdd(stringLen + 2)) {
@@ -127,7 +128,7 @@ void NetworkMessage::addBytes(const char* bytes, size_t size) {
 		return;
 	}
 
-	memcpy(buffer.data() + info.position, bytes, size);
+	std::ranges::copy(bytes, bytes + size, buffer.begin() + info.position);
 	info.position += size;
 	info.length += size;
 }
@@ -138,7 +139,7 @@ void NetworkMessage::addPaddingBytes(size_t n) {
 		return;
 	}
 
-	memset(buffer.data() + info.position, 0x33, n);
+	std::fill(buffer.begin() + info.position, buffer.begin() + info.position + n, 0x33);
 	info.position += n;
 	info.length += n;
 }

@@ -27,9 +27,6 @@ public:
 	// 2 bytes for encrypted message size
 	static constexpr MsgSize_t INITIAL_BUFFER_POSITION = 8;
 
-	NetworkMessage() :
-		buffer(NETWORKMESSAGE_MAXSIZE, 0) { }
-
 	void reset() {
 		info = {};
 	}
@@ -175,7 +172,6 @@ public:
 		return buffer.data() + HEADER_LENGTH;
 	}
 
-protected:
 	bool canAdd(size_t size) const {
 		return (size + info.position) < MAX_BODY_LENGTH;
 	}
@@ -184,6 +180,7 @@ protected:
 		return size <= (info.length - (info.position - INITIAL_BUFFER_POSITION));
 	}
 
+protected:
 	struct NetworkMessageInfo {
 		MsgSize_t length = 0;
 		MsgSize_t position = INITIAL_BUFFER_POSITION;
@@ -191,5 +188,5 @@ protected:
 	};
 
 	NetworkMessageInfo info;
-	std::vector<uint8_t> buffer;
+	std::array<uint8_t, NETWORKMESSAGE_MAXSIZE> buffer = {};
 };
